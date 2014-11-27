@@ -445,7 +445,10 @@ Operation.prototype.getSignature = function(type, models) {
   else
     isPrimitive = ((listType != null) && models[listType]) || (models[type] != null) ? false : true;
   if (isPrimitive) {
-    return type;
+    if(listType)
+      return "array[" + type + "]";
+    else
+      return type;
   } else {
     if (listType != null)
       return models[type].getMockSignature();
