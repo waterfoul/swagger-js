@@ -79,15 +79,57 @@ describe('swagger request functions', function () {
     expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByTags?tags=tag%201&tags=tag%202');
   });
 
-  it('generate a get request with email query param array', function () {
+  it('generate a get request with email query param array in pipes', function () {
     var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'pipes';
     var req = petApi.findPetsByStatus({status: ['fehguy@gmail.com', 'nada']}, {mock: true});
-
-    test.object(req);
-
-    expect(req.method).toBe('GET');
-    expect(req.headers.Accept).toBe('application/json');
     expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status=fehguy%40gmail.com|nada');
+  });
+
+  it('generate a get request with email query param array in csv', function () {
+    var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'csv';
+    var req = petApi.findPetsByStatus({status: ['fehguy@gmail.com', 'nada']}, {mock: true});
+    expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status=fehguy%40gmail.com,nada');
+  });
+
+  it('generate a get request with email query param array in ssv', function () {
+    var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'ssv';
+    var req = petApi.findPetsByStatus({status: ['fehguy@gmail.com', 'nada']}, {mock: true});
+    expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status=fehguy%40gmail.com%20nada');
+  });
+
+  it('generate a get request with email query param array in tsv', function () {
+    var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'tsv';
+    var req = petApi.findPetsByStatus({status: ['fehguy@gmail.com', 'nada']}, {mock: true});
+    expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status=fehguy%40gmail.com\\tnada');
+  });
+
+  it('generate a get request with email query param array in multi', function () {
+    var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'multi';
+    var req = petApi.findPetsByStatus({status: ['fehguy@gmail.com', 'nada']}, {mock: true});
+    expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status=fehguy%40gmail.com&status=nada');
+  });
+
+  it('generate a get request with email query param array in simulated brackets', function () {
+    var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'multi';
+    petApi.operations.findPetsByStatus.parameters[0].name = 'status[]';
+    petApi.findPetsByStatus.help();
+    var req = petApi.findPetsByStatus({'status[]': ['fehguy@gmail.com', 'nada']}, {mock: true});
+    expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status[]=fehguy%40gmail.com&status[]=nada');
+    // put it back (yuck)
+    petApi.operations.findPetsByStatus.parameters[0].name = 'status';
+  });
+
+  it('generate a get request with email query param array in brackets', function () {
+    var petApi = sample.pet;
+    petApi.operations.findPetsByStatus.parameters[0].collectionFormat = 'brackets';
+    var req = petApi.findPetsByStatus({status: ['fehguy@gmail.com', 'nada']}, {mock: true});
+    expect(req.url).toBe('http://localhost:8000/v2/api/pet/findByStatus?status[]=fehguy%40gmail.com&status[]=nada');
   });
 
   it('generate a POST request with body', function () {
